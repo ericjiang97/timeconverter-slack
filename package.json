@@ -1,0 +1,11 @@
+{
+  "name": "time",
+  "scripts": {
+    "start": "micro index.js"
+  },
+  "dependencies": {
+    "micro": "^9.0.2",
+    "moment": "^2.19.3",
+    "moment-timezone": "^0.5.14"
+  }
+}
