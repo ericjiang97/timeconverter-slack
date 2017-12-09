@@ -1,10 +1,20 @@
 const url = require('url')
 const Moment = require('moment-timezone')
 
+
+convert = (from, to, time) => {
+  var fromTime = Moment.tz(Moment().format("DD/MM/YYYY") + time + ":00", "DD/MM/YYYY  hh:mm", from);
+  var fromTimeDisplay = fromTime.clone().format("Do MMMM YYYY, h:mm a")
+  const toTime = fromTime.tz(to).format("Do MMMM YYYY, h:mm a")
+  
+  return "The time in \n " + to + " is: " + toTime + 
+    "\n when converted from " + from +  " is: " + fromTimeDisplay
+  
+}
 module.exports = async request => {
   const query = url.parse(request.url, true).query
   const londonCodes = ["LON", "LONDON", "GMT"]
-  const aestCodes = ["MELB", "MELBOURNE", "SYD", "SYDNEY", "AEST"]
+  const aestCodes = ["MELB", "MEL", "MELBOURNE", "SYD", "SYDNEY", "AEST"]
 
   console.log(query)
   if (!query.text) {
@@ -30,12 +40,7 @@ module.exports = async request => {
       if(times.length != 2){
         return "Invalid Format"
       }
-      var londonTime = Moment.tz(Moment().format("DD/MM/YYYY") + times, "DD/MM/YYYY  hh:ss", "Europe/London");
-      var londDisplayTime = londonTime.clone().format("DD/MM/YYYY  hh:ss  A")
-      const melbTime = londonTime.tz("Australia/Melbourne").format("DD/MM/YYYY  hh:ss  A")
-     
-      return "The time in \n Melbourne/Sydney (AEST) is: " + melbTime + "\n when converted from London (GMT) is: " + londDisplayTime
-
+      return convert("Europe/London", "Australia/Melbourne", time)
     } catch (e) {
       throw new Error("An Error Has Occured ensure time is following format: hh:mm")
     }
@@ -47,19 +52,17 @@ module.exports = async request => {
       if(times.length != 2){
         return "Invalid Format"
       }
-      var fromTime = Moment.tz(Moment().format("DD/MM/YYYY") + times, "DD/MM/YYYY  hh:ss", "Australia/Melbourne");
-      var displayTime = fromTime.clone().format("DD/MM/YYYY  hh:ss  A")
-      const convertedTime = fromTime.tz("Europe/London").format("DD/MM/YYYY  hh:ss  A")
-     
-      return "The time in \n London (GMT) is: " + convertedTime + "\n when converted from Melbourne/Sydney (AEST) is: " + displayTime
-
+      return convert("Australia/Melbourne", "Europe/London", time)
     } catch (e) {
       throw new Error("An Error Has Occured ensure time is following format: hh:mm")
     }
     
+  } else if(location === 'LIST'){
+    return "List of codes are the following: \n London: \n" + londonCodes.map(loc => { return "- " + loc + "\n"}) +
+     "\n Melbourne: \n:" + aestCodes
   }
   
 
-  return "No data available"
+  return "No data available. Please ensure list of codes is valid."
   
 }
